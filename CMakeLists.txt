@@ -108,8 +108,8 @@ find_package(OpenCV 4.2 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES hwp_goalplanner
+  INCLUDE_DIRS include
+  LIBRARIES hwp_goalplanner
 #  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp tf2_ros visualization_msgs
 #  DEPENDS system_lib
 )
@@ -121,7 +121,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )

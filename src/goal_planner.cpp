@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <actionlib/client/simple_action_client.h>
-#include </home/oleroessler/catkin_ws/src/hwp_goalplanner/src/subscriber_collection.h>
+#include <hwp_goalplanner/subscriber_collection.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
