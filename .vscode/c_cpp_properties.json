@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/opt/ros/noetic/include/**",
+        "/home/oleroessler/catkin_ws/src/a_1_publisher_subscriber/include/**",
+        "/home/oleroessler/catkin_ws/src/a_2_circle/include/**",
+        "/home/oleroessler/catkin_ws/src/a_3_laserscan/include/**",
+        "/home/oleroessler/catkin_ws/src/hwp_goalplanner/include/**",
+        "/home/oleroessler/catkin_ws/src/hwp_simulation/hwp_turtlebot3_fake/include/**",
+        "/home/oleroessler/catkin_ws/src/hwp_simulation/hwp_turtlebot3_gazebo/include/**",
+        "/home/oleroessler/catkin_ws/src/local-planner/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
