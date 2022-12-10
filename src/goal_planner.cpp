@@ -24,7 +24,6 @@ class Utils{
         //Client ?
 
 };
-
 void getMap(nav_msgs::OccupancyGrid map){
     ROS_INFO("Gets Map");
 }
