@@ -9,10 +9,9 @@
  * TODO public or private with getter/setter?
 */
 struct SubscriberCollection{
-    public: 
-        ros::Subscriber map_sub;
-        ros::Subscriber red_triangle_sub;
-        ros::Subscriber blue_squere_sub;
+    ros::Subscriber map_sub;
+    ros::Subscriber red_triangle_sub;
+    ros::Subscriber blue_squere_sub;
 };
 
 #endif
