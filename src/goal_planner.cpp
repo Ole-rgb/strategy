@@ -12,14 +12,14 @@
 #include <opencv2/core/mat.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/ximgproc.hpp>
-#include <hwp_goalplanner/subscriber_collection.h>
+#include <hwp_goalplanner/subscriber_publisher_collection.h>
 #include <hwp_goalplanner/mb_client.h>
 #include <hwp_goalplanner/state.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-SubscriberCollection subs;
-ros::Publisher cmd_velPub;
+/* Create a collection that holds all subs and pubs */
+SubscriberPublisherCollection SP_Collection;
 
 /**
  * * Gets the Map 
@@ -57,16 +57,14 @@ void foundBlueSquare(visualization_msgs::Marker human){
 }
 
 /**
- * * Creates a filled SubscriberCollection instance
+ * * Fills the SubscriberPublisherCollection
  * @param nh The nodehandle thats needed for the subscribers
- * @return A SubscriberCollection
 */
-SubscriberCollection fillSubCollection(ros::NodeHandle nh){
-    //Saves all subscribers in a SubscriberCollection
-    subs.map_sub = nh.subscribe("/map", 10, getMap);
-    subs.red_triangle_sub = nh.subscribe("/red_triangle_pos", 10, foundRedTriangle);
-    subs.blue_squere_sub = nh.subscribe("/blue_square_pos", 10, foundBlueSquare);
-    return subs;
+void fillSPCollection(ros::NodeHandle nh){
+    SP_Collection.map_sub = nh.subscribe("/map", 10, getMap);
+    SP_Collection.red_triangle_sub = nh.subscribe("/red_triangle_pos", 10, foundRedTriangle);
+    SP_Collection.blue_squere_sub = nh.subscribe("/blue_square_pos", 10, foundBlueSquare);
+    SP_Collection.cmd_velPub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 }
 
     /**
@@ -83,18 +81,19 @@ SubscriberCollection fillSubCollection(ros::NodeHandle nh){
         twist.angular.x = 0;
         twist.angular.y = 0;
         twist.angular.z = 1;
-        cmd_velPub.publish(twist);
+        SP_Collection.cmd_velPub.publish(twist);
+
         /**
          * TODO find good z value and sleep value 
          * TODO test on robot
         */
         ros::Duration(7).sleep();
         twist.angular.z = 0;
-        cmd_velPub.publish(twist);
+        SP_Collection.cmd_velPub.publish(twist);
     }
 
     /**
-     * Todo returntype
+     * Todo implement
     */
     void DistanceTransformation(){
         //cv::ximgproc::thinning(input, output);
@@ -104,8 +103,7 @@ SubscriberCollection fillSubCollection(ros::NodeHandle nh){
 int main(int argc, char **argv){
     ros::init(argc, argv, "GoalPlanner");
     ros::NodeHandle nh;
-    SubscriberCollection subs = fillSubCollection(nh);
-    cmd_velPub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+    fillSPCollection(nh);
     /* The MBClient is responsable for sending movements via move_base */
     MBClient aC;
     aC.serverConnection();
