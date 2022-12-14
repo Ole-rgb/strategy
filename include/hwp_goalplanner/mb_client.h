@@ -19,6 +19,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 struct MBClient{
     MoveBaseClient actionClient;
+    tf2_ros::Buffer tfBuffer; 
     move_base_msgs::MoveBaseGoal goal;
     MBClient(): actionClient("/move_base", true){
         ROS_INFO("Actionclient created");
@@ -75,8 +76,7 @@ struct MBClient{
      * @return geometry_msgs::TransformStamped (the position of the robot)
     */
     geometry_msgs::TransformStamped getPosition(){
-    tf2_ros::Buffer tfBuffer; 
-    tf2_ros::TransformListener tfListener(tfBuffer);
+        tf2_ros::TransformListener tfListener(tfBuffer);
         geometry_msgs::TransformStamped transformStamped;
         try{
             transformStamped = tfBuffer.lookupTransform("map", "base_footprint", ros::Time(0));
