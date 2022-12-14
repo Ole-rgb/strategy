@@ -5,11 +5,13 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <tf2_ros/transform_listener.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <actionlib/client/simple_action_client.h>
 #include <hwp_goalplanner/subscriber_collection.h>
 #include <hwp_goalplanner/state_machine.h>
 #include <hwp_goalplanner/state.h>
+#include <geometry_msgs/Twist.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -20,9 +22,16 @@ SubscriberCollection subs;
 * @param map The map  
 */
 void getMap(nav_msgs::OccupancyGrid map){
-       ROS_INFO("Robot is recieving MAPDATA");
-        map.
-}
+    ROS_INFO("Recieving MAPDATA");
+    cv::InputArray input =  cv::InputArray(map);
+    //cv::OutputArray output = cv::OutputArray(cv::Mat(4,4,CV_8UC1));
+
+    //cv::ximgproc::thinning(input,output);
+    /**
+     * TODO declare one global thinned map and always to the distancetransformation if the map updates (aka if getMAP is called)
+    */
+    //cv::imshow("original",input);
+}   
 
 /**
  * * Gets a red triangle  
@@ -61,9 +70,9 @@ int main(int argc, char **argv){
     ros::init(argc, argv, "GoalPlanner");
     ros::NodeHandle nh;
     SubscriberCollection subs = fillSubCollection(nh);
+    ros::Publisher cmd_velPub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 
-
-    StateMachine stateMachine(subs);
+    StateMachine stateMachine(subs, cmd_velPub);
     stateMachine.run();
 
     ros::spin();
