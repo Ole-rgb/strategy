@@ -33,11 +33,15 @@ void getMap(nav_msgs::OccupancyGrid msg){
     ROS_INFO("Recieving MAPDATA");
     ROS_INFO("Updating map");
     cv::Size sz(msg.info.height, msg.info.width);
+    /** The node compiles and runs without any errors, 
+     * ! but i cant show the image or access values ("Speicherzugriffsfehler (Speicherabzug geschrieben)")
+    */
     cv::Mat input(sz, CV_8SC1, &(msg.data));
     cv::ximgproc::thinning(input, output, 0);
 
     
-    
+
+
 
 
 
@@ -124,7 +128,7 @@ int main(int argc, char **argv){
 
     ROS_INFO("Statemachine is running!");
 
-    aC.fullTurn();
+    //aC.fullTurn();
     /**
      * TODO implement logic of the state machine here.
       * punkt aussuchen zum anfahren 
