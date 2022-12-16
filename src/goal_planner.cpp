@@ -32,11 +32,21 @@ cv::Mat output = cv::Mat();
 void getMap(nav_msgs::OccupancyGrid msg){
     ROS_INFO("Recieving MAPDATA");
     ROS_INFO("Updating map");
-
     cv::Size sz(msg.info.height, msg.info.width);
-    cv::Mat input(sz, CV_8SC1, msg.data);
-
+    cv::Mat input(sz, CV_8SC1, &(msg.data));
     cv::ximgproc::thinning(input, output, 0);
+
+    
+    
+
+
+
+    //std::string mapMatWindow = "Map Matrix Image";
+    //cv::namedWindow(mapMatWindow, cv::WINDOW_GUI_NORMAL);
+    //cv::imshow(mapMatWindow, output);
+
+    //cv::waitKey(0);
+    //cv::destroyAllWindows();
 }
 
 /**
