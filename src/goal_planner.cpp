@@ -33,21 +33,17 @@ void getMap(nav_msgs::OccupancyGrid msg){
     ROS_INFO("Recieving MAPDATA");
     ROS_INFO("Updating map");
     cv::Size sz(msg.info.height, msg.info.width);
-    /** The node compiles and runs without any errors, 
-     * ! but i cant show the image or access values ("Speicherzugriffsfehler (Speicherabzug geschrieben)")
-    */
     cv::Mat input(sz, CV_8SC1, &(msg.data));
     cv::ximgproc::thinning(input, output, 0);
 
-    
-
-
-
+    /** The node compiles and runs without any errors, 
+     * ! but i cant show the image or access values ("Speicherzugriffsfehler (Speicherabzug geschrieben)")
+    */
 
 
     //std::string mapMatWindow = "Map Matrix Image";
     //cv::namedWindow(mapMatWindow, cv::WINDOW_GUI_NORMAL);
-    //cv::imshow(mapMatWindow, output);
+    //cv::imshow(mapMatWindow, input);
 
     //cv::waitKey(0);
     //cv::destroyAllWindows();
