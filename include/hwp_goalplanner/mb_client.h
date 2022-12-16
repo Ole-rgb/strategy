@@ -14,14 +14,15 @@
 #ifndef MB_CLIENT_H
 #define MB_CLIENT_H
 
-
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 struct MBClient{
     MoveBaseClient actionClient;
-    tf2_ros::Buffer tfBuffer; 
+    tf2_ros::Buffer tfBuffer;
+    tf2_ros::TransformListener tfListener;
+ 
     move_base_msgs::MoveBaseGoal goal;
-    MBClient(): actionClient("/move_base", true){
+    MBClient(): actionClient("/move_base", true), tfListener(tfBuffer){
         ROS_INFO("Actionclient created");
     }
     /**
@@ -67,16 +68,16 @@ struct MBClient{
             if(actionClient.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
                 ROS_INFO("Goal achieved");
             }else{
-                ROS_WARN("Goal not achieved");
+                ROS_WARN("Goal not achieved, something went wrong");
             }
         }
     }
     /**
      * *Gets the position of the robot on the map (in frame map)
+     * ! not working (always going into the catch block)
      * @return geometry_msgs::TransformStamped (the position of the robot)
     */
     geometry_msgs::TransformStamped getPosition(){
-        tf2_ros::TransformListener tfListener(tfBuffer);
         geometry_msgs::TransformStamped transformStamped;
         try{
             transformStamped = tfBuffer.lookupTransform("map", "base_footprint", ros::Time(0));

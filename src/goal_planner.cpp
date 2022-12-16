@@ -10,8 +10,10 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/core.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/ximgproc.hpp>
+#include <opencv2/core/mat.hpp>
 #include <hwp_goalplanner/subscriber_publisher_collection.h>
 #include <hwp_goalplanner/mb_client.h>
 #include <hwp_goalplanner/state.h>
@@ -20,23 +22,22 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 /* Create a collection that holds all subs and pubs */
 SubscriberPublisherCollection SP_Collection;
+cv::Mat output = cv::Mat();
 
 /**
  * * Gets the Map 
 * Callbackfunction that gets the map from /map
 * @param map The map  
 */
-void getMap(nav_msgs::OccupancyGrid map){
+void getMap(nav_msgs::OccupancyGrid msg){
     ROS_INFO("Recieving MAPDATA");
-    cv::InputArray input =  cv::InputArray(map);
-    //cv::OutputArray output = cv::OutputArray(cv::Mat(4,4,CV_8UC1));
+    ROS_INFO("Updating map");
 
-    //cv::ximgproc::thinning(input,output);
-    /**
-     * TODO declare one global thinned map and always to the distancetransformation if the map updates (aka if getMAP is called)
-    */
-    //cv::imshow("original",input);
-}   
+    cv::Size sz(msg.info.height, msg.info.width);
+    cv::Mat input(sz, CV_8SC1, msg.data);
+
+    cv::ximgproc::thinning(input, output, 0);
+}
 
 /**
  * * Gets a red triangle  
@@ -113,14 +114,12 @@ int main(int argc, char **argv){
 
     ROS_INFO("Statemachine is running!");
 
+    aC.fullTurn();
     /**
      * TODO implement logic of the state machine here.
       * punkt aussuchen zum anfahren 
     */
     /*Distanztransformation*/
-
-
-    aC.fullTurn();
     
     ros::spin();
 }
