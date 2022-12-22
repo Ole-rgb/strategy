@@ -18,6 +18,8 @@
 #include <hwp_goalplanner/mb_client.h>
 #include <hwp_goalplanner/point.h>
 
+#include <iostream>
+
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 /** 
@@ -44,11 +46,11 @@ cv::Mat output = cv::Mat();
 * @param map The OccupanyGrid that contains all the important information about the map.
 */
 void getMap(nav_msgs::OccupancyGrid msg){
-    ROS_WARN("Recieving MAPDATA");
+    ROS_INFO("Recieving MAPDATA");
 
     /* Checks for values that are not in bounds of int8 */
    for(int i = 0; i < (msg.info.height*msg.info.width); ++i){
-        if(msg.data[i] == -1){
+        if(msg.data[i] < 0){
             msg.data[i] = 0;
         };
         if(msg.data[i] > 255){
@@ -56,19 +58,18 @@ void getMap(nav_msgs::OccupancyGrid msg){
         }
    };
 
-
     cv::Size sz(msg.info.height, msg.info.width);
     //Unsigned (0 bis 255)
     cv::Mat input(sz, CV_8UC1, &(msg.data));
+
+    /**
+     * ! Breakes the programm "Speicherzugriffsfehler (Speicherabzug geschrieben)"
+     * The console matrix doesnt end with ] so its a boundary error?! 
+    */
+    std::cout << "Input = " << std::endl << " "  << input << std::endl << std::endl;
+
     //cv::ximgproc::thinning(input, output, 0);
 
-    /*Visualises the matrix*/
-    std::string mapMatWindow = "Map Matrix Image";
-    cv::namedWindow(mapMatWindow, cv::WINDOW_GUI_NORMAL);
-    cv::imshow(mapMatWindow, input);
-
-    cv::waitKey(0);
-    cv::destroyAllWindows();
 }
 
 /**
