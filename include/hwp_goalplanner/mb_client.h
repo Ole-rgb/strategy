@@ -133,9 +133,6 @@ struct MBClient{
             transformStamped = tfBuffer.lookupTransform("map", "base_footprint", ros::Time(0));
         }
         catch (tf2::TransformException &ex) {
-            /**
-             * ! All zeros lets the robot drive to (0,0,0)
-             */
             ROS_WARN("%s",ex.what());
         }
         //prints the position out (for trouble shooting)

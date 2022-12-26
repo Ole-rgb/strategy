@@ -46,30 +46,53 @@ cv::Mat output = cv::Mat();
 * @param map The OccupanyGrid that contains all the important information about the map.
 */
 void getMap(nav_msgs::OccupancyGrid msg){
+        
     ROS_INFO("Recieving MAPDATA");
+    cv::Size sz(msg.info.height, msg.info.width);
 
-    /* Checks for values that are not in bounds of int8 */
-   for(int i = 0; i < (msg.info.height*msg.info.width); ++i){
-        if(msg.data[i] < 0){
-            msg.data[i] = 0;
-        };
-        if(msg.data[i] > 255){
-            msg.data[i] = 255;
+    cv::Mat input = cv::Mat::zeros(sz, CV_8UC1);
+
+    int row = 0;
+    int column = 0;
+    
+    for(int i = 0; i < (msg.info.height*msg.info.width); i++){
+        if(msg.data[i] == -1)
+        {
+            input.at<uchar>(row, column) = 0;  
         }
+        else if(msg.data[i] == 0){
+            //input.at<uchar>(row, column) = 255;  
+            input.at<uchar>(row, column) = 0;  
+
+        }
+        else
+        {
+            if(msg.data[i] > 0){
+                //input.at<uchar>(row, column) = 0;
+                input.at<uchar>(row, column) = 255;  
+
+            };
+        };
+
+        if(column == msg.info.width-1)
+        {
+            column = 0;
+            row++;
+        }else
+        {
+            column++; 
+        };
    };
 
-    cv::Size sz(msg.info.height, msg.info.width);
-    //Unsigned (0 bis 255)
-    cv::Mat input(sz, CV_8UC1, &(msg.data));
 
-    /**
-     * ! Breakes the programm "Speicherzugriffsfehler (Speicherabzug geschrieben)"
-     * The console matrix doesnt end with ] so its a boundary error?! 
+    cv::ximgproc::thinning(input, output, cv::ximgproc::THINNING_ZHANGSUEN);
+    /*
+    std::cout << "input = " << std::endl << " "  << input << std::endl << std::endl;
+    std::cout << "output = " << std::endl << " "  << output << std::endl << std::endl;
+    cv::imshow("test_input", input);
+    cv::imshow("test_output", output);
+    cv::waitKey(0);
     */
-    std::cout << "Input = " << std::endl << " "  << input << std::endl << std::endl;
-
-    //cv::ximgproc::thinning(input, output, 0);
-
 }
 
 /**
@@ -135,7 +158,6 @@ void initTurn(){
 
 /**
  ** The main function is responcable for running the entire GoalPlannerNode
- * 
  */
 int main(int argc, char **argv){
     ros::init(argc, argv, "GoalPlanner");
@@ -153,7 +175,7 @@ int main(int argc, char **argv){
     /**
      * TODO implement logic of the state machine here.
     */
-    /*As long as not all points are visited execute the loop*/
+    //As long as not all points are visited execute the loop
     while(!(points[0].visited && points[1].visited && points[2].visited && points[3].visited && points[4].visited)){
         Point *p_point;
         for(int i = 0; i <= 4; ++i){
@@ -167,4 +189,5 @@ int main(int argc, char **argv){
         aC.fullTurn();
         ros::spinOnce();
     }
+    
 }
