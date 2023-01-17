@@ -74,13 +74,6 @@ void getMap(nav_msgs::OccupancyGrid msg)
     }
 
     cv::ximgproc::thinning(input, thinned, cv::ximgproc::THINNING_ZHANGSUEN);
-    /*
-    std::cout << "input = " << std::endl << " "  << input << std::endl << std::endl;
-    std::cout << "thinned = " << std::endl << " "  << thinned << std::endl << std::endl;
-    cv::imshow("test_input", input);
-    cv::imshow("test_thinned", thinned);
-    cv::waitKey(0);
-    */
 
     /* creates the vector that holds the points that should be visited by the robot */
     for (int i = 0; i < msg.info.height; i++)
@@ -162,6 +155,16 @@ void initTurn()
     SP_Collection.cmd_velPub.publish(twist);
 }
 
+void print(std::vector<Point> &input)
+{
+    for (int i = 0; i < input.size(); i++) {
+        printf("(");
+        std::cout << input.at(i).x << ',';
+        std::cout << input.at(i).y << ')';
+        printf("\n");
+    }
+}
+
 /**
  ** The main function is responcable for running the entire GoalPlannerNode
  */
@@ -175,7 +178,6 @@ int main(int argc, char **argv)
     ROS_INFO("Finished initial setup");
     ROS_INFO("Localising");
     initTurn();
-    searchStrategy.UNITTESTING();
     ROS_INFO("Statemachine is running!");
     ros::spinOnce();
 
@@ -187,32 +189,41 @@ int main(int argc, char **argv)
     points.header.stamp = ros::Time::now();
     geometry_msgs::Pose p1;
 
-    while (!searchStrategy.getThinnedCoordinates()->empty())
-    {
-        /*Configure the TOPIC*/
-        for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
-        {
-            p1.position.x = searchStrategy.getThinnedCoordinates()->at(i).x;
-            p1.position.y = searchStrategy.getThinnedCoordinates()->at(i).y;
-            p1.position.z = 0;
+    
+    print(*searchStrategy.getThinnedCoordinates());
+    searchStrategy.UNITTESTING();
 
-            p1.orientation.x = 0;
-            p1.orientation.y = 0;
-            p1.orientation.z = 0;
+    // while (!searchStrategy.getThinnedCoordinates()->empty())
+    // {
+    //     /*Configure the TOPIC*/
+    //     for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
+    //     {
+    //         p1.position.x = searchStrategy.getThinnedCoordinates()->at(i).x;
+    //         p1.position.y = searchStrategy.getThinnedCoordinates()->at(i).y;
+    //         p1.position.z = 0;
 
-            points.poses.push_back(p1);
-        }
-        pub.publish(points);
-        ros::spinOnce();
-        points.poses.clear();
-        // ROS_INFO("Length VECTOR: %ld", searchStrategy.getThinnedCoordinates()->size());
-        // Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
-        // if (aC.driveTo(closestPoint))
-        // {
-        //     // successfully drove to the closestPoint
-        //     searchStrategy.visited(closestPoint);
-        // }
-    }
+    //         p1.orientation.x = 0;
+    //         p1.orientation.y = 0;
+    //         p1.orientation.z = 0;
+
+    //         points.poses.push_back(p1);
+    //     }
+    //     pub.publish(points);
+    //     ros::spinOnce();
+    //     points.poses.clear();
+        //ROS_INFO("Length VECTOR: %ld", searchStrategy.getThinnedCoordinates()->size());
+    //     Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
+    //     ROS_INFO("closest Point=(%f, %f)",closestPoint.x, closestPoint.y);
+    //     ROS_INFO("Robot Position=(%f, %f)", aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y);
+    //     aC.driveTo(closestPoint);
+    //     searchStrategy.visited(closestPoint);
+        
+     // if (aC.driveTo(closestPoint))
+    // {
+   // successfully drove to the closestPoint
+    //     searchStrategy.visited(closestPoint);
+    // }
+    // }
 
     /*SEE IF IT WORKED*/
 }
