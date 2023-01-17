@@ -2,7 +2,7 @@
 #define POINT_H
 
 /**
- * * A point the robot should drive to
+ * * A Point
 */
 struct Point{
     double x;

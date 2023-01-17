@@ -24,14 +24,17 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
+/**
+ * TODO read directly from yaml
+*/
 /* const used for the conversion of pixels to coordinates */
 const double map_resolution = 0.025;
 const double offset[] = {-2.5, -2.5, 0};
 
-/*This array will hold all the fires found by the robot*/
-// visualization_msgs::Marker red_triangle_markers[];
-/*This array will hold all the humans found by the robot*/
-// visualization_msgs::Marker blue_squere_markers[];
+/*This vector will hold all the fires-marker found by the robot*/
+std::vector<visualization_msgs::Marker> red_triangle_markers;
+/*This vector will hold all the human-marker found by the robot*/
+std::vector<visualization_msgs::Marker> blue_squere_markers;
 
 /* Create a collection that holds all subs and pubs */
 SubscriberPublisherCollection SP_Collection;
@@ -93,23 +96,25 @@ void getMap(nav_msgs::OccupancyGrid msg)
 /**
  * * Gets a red triangle
  * Callbackfunction that gets a triangle
- * ! And fills the red_triangle_markers array.
+ * TODO fill the red_triangle_markers array.
  * @param fire The tiangle represents a fire
  */
 void foundRedTriangle(visualization_msgs::Marker fire)
 {
     ROS_WARN("Found red triangle");
+    red_triangle_markers.push_back(fire);
 }
 
 /**
  * * Gets a blue squere
  * Callbackfunction that gets a squere
- * ! And fills the blue_squere_markers array.
+ * TODO fill the blue_squere_markers array.
  * @param human The squere represents a human
  */
 void foundBlueSquare(visualization_msgs::Marker human)
 {
     ROS_WARN("Found blue sqaure");
+    blue_squere_markers.push_back(human);
 }
 
 /**
@@ -126,7 +131,7 @@ void fillSPCollection(ros::NodeHandle nh)
 
 /**
  * * Used locating the robot
- * has to publish to "/cmd_vel" directly because move_base needs a location
+ * The method publishes directly to "/cmd_vel"
  */
 void initTurn()
 {
@@ -155,16 +160,6 @@ void initTurn()
     SP_Collection.cmd_velPub.publish(twist);
 }
 
-void print(std::vector<Point> &input)
-{
-    for (int i = 0; i < input.size(); i++) {
-        printf("(");
-        std::cout << input.at(i).x << ',';
-        std::cout << input.at(i).y << ')';
-        printf("\n");
-    }
-}
-
 /**
  ** The main function is responcable for running the entire GoalPlannerNode
  */
@@ -181,6 +176,9 @@ int main(int argc, char **argv)
     ROS_INFO("Statemachine is running!");
     ros::spinOnce();
 
+    /**
+     * TODO remove the posearray-topic
+    */
     /*For testing i created a publisher that publishes the posearray*/
     ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("/thinnedVector", 5);
 
@@ -190,8 +188,6 @@ int main(int argc, char **argv)
     geometry_msgs::Pose p1;
 
     
-    searchStrategy.UNITTESTING();
-
     while (!searchStrategy.getThinnedCoordinates()->empty())
     {
         /*Configure the TOPIC*/
@@ -210,11 +206,12 @@ int main(int argc, char **argv)
         pub.publish(points);
         ros::spinOnce();
         points.poses.clear();
-        ROS_INFO("Length VECTOR: %ld", searchStrategy.getThinnedCoordinates()->size());
+        //ROS_INFO("Length VECTOR: %ld", searchStrategy.getThinnedCoordinates()->size());
         Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
-        // ROS_INFO("closest Point=(%f, %f)",closestPoint.x, closestPoint.y);
-        // ROS_INFO("Robot Position=(%f, %f)", aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y);
         if(aC.driveTo(closestPoint)){
+            /**
+             * TODO roboter position or closest Point?
+            */
             //Point robPos = Point(aC.getPosition().transform.translation.x,aC.getPosition().transform.translation.y);
             //searchStrategy.visited(robPos);
             searchStrategy.visited(closestPoint);
@@ -222,5 +219,7 @@ int main(int argc, char **argv)
     
     }
 
-    /*SEE IF IT WORKED*/
+    /**
+     * TODO handle Vision
+    */
 }

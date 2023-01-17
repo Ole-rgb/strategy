@@ -51,7 +51,7 @@ struct MBClient
      * * Method for turning the roboter 360 degrees
      * The robots starts by turning to 0 degrees and then does 3 additional turns to forfill one 360 degrees turn
      * ! cant be used for initial localisation-spin
-     * ! Rotation is relativ to the map and not to the robots rotation ()
+     * ! Rotation is relativ to the map and not to the robots rotation
      */
     void fullTurn()
     {
@@ -137,8 +137,7 @@ struct MBClient
     }
 
     /**
-     * *Gets the position of the robot on the map (in frame map)
-     * ! not working (always going into the catch block)
+     * * Gets the position of the robot on the map (in frame map)
      * @return geometry_msgs::TransformStamped (the position of the robot)
      */
     geometry_msgs::TransformStamped getPosition()
