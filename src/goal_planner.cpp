@@ -39,8 +39,8 @@ SubscriberPublisherCollection SP_Collection;
 /* The thinned map will be saved in this cd::Mat */
 cv::Mat thinned = cv::Mat();
 
-/* The seachStrategy handöse  */
-SearchStrategy searchStrategy(0.2);
+/* The seachStrategy handles all interation with the thinnedCoordiantes  */
+SearchStrategy searchStrategy(0.35);
 
 /**
  * * Gets the Map
@@ -190,7 +190,6 @@ int main(int argc, char **argv)
     geometry_msgs::Pose p1;
 
     
-    print(*searchStrategy.getThinnedCoordinates());
     searchStrategy.UNITTESTING();
 
     // while (!searchStrategy.getThinnedCoordinates()->empty())

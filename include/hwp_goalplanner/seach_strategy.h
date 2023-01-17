@@ -20,7 +20,7 @@ class SearchStrategy
 private:
     /* data */
     std::vector<Point> thinnedCoordinates;
-    int RADIUS;
+    double RADIUS;
 
     /**
      * * Calcuates the distance between the points
@@ -40,7 +40,7 @@ private:
 
 public:
     /* Constructors */
-    SearchStrategy(int RADIUS);
+    SearchStrategy(double RADIUS);
     SearchStrategy();
 
     /**
@@ -58,7 +58,6 @@ public:
         };
 
         Point nearestPoint = thinnedCoordinates.at(0);
-        printf(" '0:(%f,%f)' ",nearestPoint.x,nearestPoint.y);
         for (int i = 1; i < thinnedCoordinates.size(); i++)
         {
             double currentDistance = distance(robotPosition, thinnedCoordinates.at(i));
@@ -67,10 +66,8 @@ public:
             if (currentDistance < prevSmallestDistance)
             {
                 nearestPoint = thinnedCoordinates.at(i);
-                printf(" '%i:(%f,%f)' ", i,nearestPoint.x,nearestPoint.y);
             };
         };
-
         return nearestPoint;
     }
 
@@ -107,22 +104,25 @@ public:
     /*TESTING*/
     void UNITTESTING()
     {
-        ROS_WARN("TESTCASE_1 - distance() -> Answer: 2; Method: %f", distance(Point(0, 0), Point(0, 2)));
-        ROS_WARN("TESTCASE_2 - distance() -> Answer: 1,41; Method: %f", distance(Point(1, 0), Point(0, 1)));
-        ROS_WARN("TESTCASE_3 - distance() -> Answer: 4,47 ; Method: %f", distance(Point(2, 1), Point(4, 5)));
+        ROS_INFO("TESTCASE_1 - distance() -> Answer: 2; Method: %f", distance(Point(0, 0), Point(0, 2)));
+        ROS_INFO("TESTCASE_2 - distance() -> Answer: 1,41; Method: %f", distance(Point(1, 0), Point(0, 1)));
+        ROS_INFO("TESTCASE_3 - distance() -> Answer: 4,47 ; Method: %f", distance(Point(2, 1), Point(4, 5)));
 
  
-        ROS_WARN("TESTCASE_1 - closestPoint(Point(1,0)) -> Answer: Point(1,0); Method: Point(%f,%f)", closestPoint(Point(1,0)).x, closestPoint(Point(1,0)).y);
-        ROS_WARN("TESTCASE_2 - closestPoint(Point(2,0)) -> Answer: Point(2.025,0); Method: Point(%f,%f)", closestPoint(Point(2,0)).x, closestPoint(Point(2,0)).y);
+        ROS_INFO("TESTCASE_1 - closestPoint(Point(1,0)) -> Answer: Point(1,0); Method: Point(%f,%f)", closestPoint(Point(1,0)).x, closestPoint(Point(1,0)).y);
+        ROS_INFO("TESTCASE_2 - closestPoint(Point(2,0)) -> Answer: Point(2.025,0); Method: Point(%f,%f)", closestPoint(Point(2,0)).x, closestPoint(Point(2,0)).y);
         //ROS_WARN("TESTCASE_2 - closestPoint(Point(0,0)) -> Answer: Point(1,0); Method: Point(%f,%f)", closestPoint(Point(0,0)).x, closestPoint(Point(0,0)).y);
 
 
 
-        ROS_WARN("TESTCASE_1 - visited() -> ");
+        ROS_WARN("TESTCASE_1 - visited(Point(1,0))");
+        ROS_WARN("%ld vector-entries before visit",thinnedCoordinates.size());
+        visited(Point(1,0));
+        ROS_WARN("%ld vector-entries after visit",thinnedCoordinates.size());
     }
 };
 
-SearchStrategy::SearchStrategy(int RADIUS)
+SearchStrategy::SearchStrategy(double RADIUS)
 {
     this->RADIUS = RADIUS;
 }
