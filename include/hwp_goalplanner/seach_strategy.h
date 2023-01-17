@@ -51,18 +51,23 @@ public:
     {
         if (thinnedCoordinates.empty())
         {
+            /**
+             * TODO figure out what to do
+            */
             return Point(-1, -1);
         };
 
         Point nearestPoint = thinnedCoordinates.at(0);
+        printf(" '0:(%f,%f)' ",nearestPoint.x,nearestPoint.y);
         for (int i = 1; i < thinnedCoordinates.size(); i++)
         {
-            int currentDistance = distance(robotPosition, thinnedCoordinates.at(i));
-            int prevSmallestDistance = distance(robotPosition, thinnedCoordinates.at(i));
+            double currentDistance = distance(robotPosition, thinnedCoordinates.at(i));
+            double prevSmallestDistance = distance(robotPosition, nearestPoint);
 
             if (currentDistance < prevSmallestDistance)
             {
                 nearestPoint = thinnedCoordinates.at(i);
+                printf(" '%i:(%f,%f)' ", i,nearestPoint.x,nearestPoint.y);
             };
         };
 
@@ -79,7 +84,7 @@ public:
         {
             if (distance(thinnedCoordinates.at(i), p) < RADIUS)
             {
-                thinnedCoordinates.erase(thinnedCoordinates.begin() + i - 1);
+                thinnedCoordinates.erase(thinnedCoordinates.begin() + i);
             }
         };
     }
@@ -89,6 +94,16 @@ public:
         return &thinnedCoordinates;
     }
 
+    void print(std::vector<Point> &input)
+    {
+        for (int i = 0; i < input.size(); i++) {
+            printf("(");
+            std::cout << input.at(i).x << ',';
+            std::cout << input.at(i).y << ')';
+            printf("\n");
+        }
+    }
+
     /*TESTING*/
     void UNITTESTING()
     {
@@ -96,7 +111,12 @@ public:
         ROS_WARN("TESTCASE_2 - distance() -> Answer: 1,41; Method: %f", distance(Point(1, 0), Point(0, 1)));
         ROS_WARN("TESTCASE_3 - distance() -> Answer: 4,47 ; Method: %f", distance(Point(2, 1), Point(4, 5)));
 
-        ROS_WARN("TESTCASE_1 - closestPoint() -> ");
+ 
+        ROS_WARN("TESTCASE_1 - closestPoint(Point(1,0)) -> Answer: Point(1,0); Method: Point(%f,%f)", closestPoint(Point(1,0)).x, closestPoint(Point(1,0)).y);
+        ROS_WARN("TESTCASE_2 - closestPoint(Point(2,0)) -> Answer: Point(2.025,0); Method: Point(%f,%f)", closestPoint(Point(2,0)).x, closestPoint(Point(2,0)).y);
+        //ROS_WARN("TESTCASE_2 - closestPoint(Point(0,0)) -> Answer: Point(1,0); Method: Point(%f,%f)", closestPoint(Point(0,0)).x, closestPoint(Point(0,0)).y);
+
+
 
         ROS_WARN("TESTCASE_1 - visited() -> ");
     }
