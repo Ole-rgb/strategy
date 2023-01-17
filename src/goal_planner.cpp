@@ -39,9 +39,8 @@ SubscriberPublisherCollection SP_Collection;
 /* The thinned map will be saved in this cd::Mat */
 cv::Mat thinned = cv::Mat();
 
-/* The vector holds all Points */
-//std::vector<Point> thinnedCoordinates;
-SearchStrategy searchStrategy(1);
+/* The seachStrategy handöse  */
+SearchStrategy searchStrategy(0.2);
 
 /**
  * * Gets the Map
@@ -78,10 +77,10 @@ void getMap(nav_msgs::OccupancyGrid msg)
     /*
     std::cout << "input = " << std::endl << " "  << input << std::endl << std::endl;
     std::cout << "thinned = " << std::endl << " "  << thinned << std::endl << std::endl;
-    */
     cv::imshow("test_input", input);
     cv::imshow("test_thinned", thinned);
     cv::waitKey(0);
+    */
 
     /* creates the vector that holds the points that should be visited by the robot */
     for (int i = 0; i < msg.info.height; i++)
@@ -176,34 +175,44 @@ int main(int argc, char **argv)
     ROS_INFO("Finished initial setup");
     ROS_INFO("Localising");
     initTurn();
-
+    searchStrategy.UNITTESTING();
     ROS_INFO("Statemachine is running!");
     ros::spinOnce();
-    printf("%d",searchStrategy.distance(Point(3,3), Point(2,2)));
+
     /*For testing i created a publisher that publishes the posearray*/
     ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("/thinnedVector", 5);
 
     geometry_msgs::PoseArray points;
     points.header.frame_id = "map";
     points.header.stamp = ros::Time::now();
+    geometry_msgs::Pose p1;
 
-    for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
+    while (!searchStrategy.getThinnedCoordinates()->empty())
     {
-        geometry_msgs::Pose p1;
+        /*Configure the TOPIC*/
+        for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
+        {
+            p1.position.x = searchStrategy.getThinnedCoordinates()->at(i).x;
+            p1.position.y = searchStrategy.getThinnedCoordinates()->at(i).y;
+            p1.position.z = 0;
 
-        p1.position.x = searchStrategy.getThinnedCoordinates()->at(i).x;
-        p1.position.y = searchStrategy.getThinnedCoordinates()->at(i).y;
-        p1.position.z = 0;
+            p1.orientation.x = 0;
+            p1.orientation.y = 0;
+            p1.orientation.z = 0;
 
-        p1.orientation.x = 0;
-        p1.orientation.y = 0;
-        p1.orientation.z = 0;
-
-        points.poses.push_back(p1);
-    }
-    while (ros::ok())
-    {
+            points.poses.push_back(p1);
+        }
         pub.publish(points);
         ros::spinOnce();
+        points.poses.clear();
+        // ROS_INFO("Length VECTOR: %ld", searchStrategy.getThinnedCoordinates()->size());
+        // Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
+        // if (aC.driveTo(closestPoint))
+        // {
+        //     // successfully drove to the closestPoint
+        //     searchStrategy.visited(closestPoint);
+        // }
     }
+
+    /*SEE IF IT WORKED*/
 }
