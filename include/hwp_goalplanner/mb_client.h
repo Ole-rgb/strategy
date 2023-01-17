@@ -114,10 +114,8 @@ struct MBClient{
         //basic responce handling 
         if(actionClient.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
             ROS_INFO("Goal achieved");
-            target->visited = true;
         }else{
             ROS_WARN("Goal not achieved, something went wrong");
-            target->visited = false;
         }
     }
 

@@ -5,6 +5,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/PoseArray.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
@@ -17,109 +18,114 @@
 #include <hwp_goalplanner/subscriber_publisher_collection.h>
 #include <hwp_goalplanner/mb_client.h>
 #include <hwp_goalplanner/point.h>
+#include <hwp_goalplanner/seach_strategy.h>
 
 #include <iostream>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-/** 
- * * The points the robot needs to drive to to scan the entire map
- * ! This array has to be filled by the search-algorithm and not manually
-*/
-Point points[] = {Point(0, 0), Point(0, 1.2), Point(2, 1.2), Point(2,0), Point(1, 0.25)};
+/* const used for the conversion of pixels to coordinates */
+const double map_resolution = 0.025;
+const double offset[] = {-2.5, -2.5, 0};
 
 /*This array will hold all the fires found by the robot*/
-//visualization_msgs::Marker red_triangle_markers[];
+// visualization_msgs::Marker red_triangle_markers[];
 /*This array will hold all the humans found by the robot*/
-//visualization_msgs::Marker blue_squere_markers[];
+// visualization_msgs::Marker blue_squere_markers[];
 
 /* Create a collection that holds all subs and pubs */
 SubscriberPublisherCollection SP_Collection;
 
-/* The transformed map will be saved in this cd::Mat*/
-cv::Mat output = cv::Mat();
+/* The thinned map will be saved in this cd::Mat */
+cv::Mat thinned = cv::Mat();
+
+/* The vector holds all Points */
+//std::vector<Point> thinnedCoordinates;
+SearchStrategy searchStrategy(1);
 
 /**
- * * Gets the Map 
-* Callbackfunction that gets the map from "/map" once at after the localisation
-* The method is responcable for the distancetransformation.
-* @param map The OccupanyGrid that contains all the important information about the map.
-*/
-void getMap(nav_msgs::OccupancyGrid msg){
-        
+ * * Gets the Map
+ * Callbackfunction that gets the map from "/map" once at after the localisation
+ * The method is responcable for the distancetransformation.
+ * @param map The OccupanyGrid that contains all the important information about the map.
+ */
+void getMap(nav_msgs::OccupancyGrid msg)
+{
     ROS_INFO("Recieving MAPDATA");
     cv::Size sz(msg.info.height, msg.info.width);
-
     cv::Mat input = cv::Mat::zeros(sz, CV_8UC1);
 
-    int row = 0;
-    int column = 0;
-    
-    for(int i = 0; i < (msg.info.height*msg.info.width); i++){
-        if(msg.data[i] == -1)
+    for (int i = 0; i < msg.info.height; i++)
+    {
+        for (int j = 0; j < msg.info.width; j++)
         {
-            input.at<uchar>(row, column) = 0;  
+            if (msg.data[i * msg.info.width + j] == -1)
+            {
+                input.at<uchar>(j, i) = 0;
+            }
+            else if (msg.data[i * msg.info.width + j] == 0)
+            {
+                input.at<uchar>(j, i) = 255;
+            }
+            else if (msg.data[i * msg.info.width] > 0)
+            {
+                input.at<uchar>(j, i) = 255;
+            }
         }
-        else if(msg.data[i] == 0){
-            //input.at<uchar>(row, column) = 255;  
-            input.at<uchar>(row, column) = 0;  
+    }
 
-        }
-        else
-        {
-            if(msg.data[i] > 0){
-                //input.at<uchar>(row, column) = 0;
-                input.at<uchar>(row, column) = 255;  
-
-            };
-        };
-
-        if(column == msg.info.width-1)
-        {
-            column = 0;
-            row++;
-        }else
-        {
-            column++; 
-        };
-   };
-
-
-    cv::ximgproc::thinning(input, output, cv::ximgproc::THINNING_ZHANGSUEN);
+    cv::ximgproc::thinning(input, thinned, cv::ximgproc::THINNING_ZHANGSUEN);
     /*
     std::cout << "input = " << std::endl << " "  << input << std::endl << std::endl;
-    std::cout << "output = " << std::endl << " "  << output << std::endl << std::endl;
-    cv::imshow("test_input", input);
-    cv::imshow("test_output", output);
-    cv::waitKey(0);
+    std::cout << "thinned = " << std::endl << " "  << thinned << std::endl << std::endl;
     */
+    cv::imshow("test_input", input);
+    cv::imshow("test_thinned", thinned);
+    cv::waitKey(0);
+
+    /* creates the vector that holds the points that should be visited by the robot */
+    for (int i = 0; i < msg.info.height; i++)
+    {
+        for (int j = 0; j < msg.info.width; j++)
+        {
+            if (thinned.at<uchar>(i, j) == 255)
+            {
+                double x = i * map_resolution + offset[0];
+                double y = j * map_resolution + offset[1];
+                searchStrategy.getThinnedCoordinates()->push_back(Point(x, y));
+            }
+        }
+    }
 }
 
 /**
- * * Gets a red triangle  
- * Callbackfunction that gets a triangle 
+ * * Gets a red triangle
+ * Callbackfunction that gets a triangle
  * ! And fills the red_triangle_markers array.
- * @param fire The tiangle represents a fire  
-*/
-void foundRedTriangle(visualization_msgs::Marker fire){
+ * @param fire The tiangle represents a fire
+ */
+void foundRedTriangle(visualization_msgs::Marker fire)
+{
     ROS_WARN("Found red triangle");
 }
 
 /**
- * * Gets a blue squere  
- * Callbackfunction that gets a squere  
+ * * Gets a blue squere
+ * Callbackfunction that gets a squere
  * ! And fills the blue_squere_markers array.
- * @param human The squere represents a human  
-*/
-void foundBlueSquare(visualization_msgs::Marker human){
+ * @param human The squere represents a human
+ */
+void foundBlueSquare(visualization_msgs::Marker human)
+{
     ROS_WARN("Found blue sqaure");
 }
 
 /**
  * * Fills the SubscriberPublisherCollection
  * @param nh The nodehandle thats needed for the subscribers and publishers
-*/
-void fillSPCollection(ros::NodeHandle nh){
+ */
+void fillSPCollection(ros::NodeHandle nh)
+{
     SP_Collection.map_sub = nh.subscribe("/map", 10, getMap);
     SP_Collection.red_triangle_sub = nh.subscribe("/red_triangle_pos", 10, foundRedTriangle);
     SP_Collection.blue_squere_sub = nh.subscribe("/blue_square_pos", 10, foundBlueSquare);
@@ -128,17 +134,18 @@ void fillSPCollection(ros::NodeHandle nh){
 
 /**
  * * Used locating the robot
- * has to publish to "/cmd_vel" directly because move_base needs a location 
-*/
-void initTurn(){
-    /* "/cmd_vel" publishes a Twister msg*/
+ * has to publish to "/cmd_vel" directly because move_base needs a location
+ */
+void initTurn()
+{
+    /* "/cmd_vel" publishes a Twister msg */
     geometry_msgs::Twist twist;
-    
-    //no linear movement 
+
+    // no linear movement
     twist.linear.x = 0;
     twist.linear.y = 0;
     twist.linear.z = 0;
-    //turns arounds the z axis
+    // turns arounds the z axis
     twist.angular.x = 0;
     twist.angular.y = 0;
     twist.angular.z = 1;
@@ -146,7 +153,7 @@ void initTurn(){
     SP_Collection.cmd_velPub.publish(twist);
 
     /**
-     * TODO find good z value and sleep value 
+     * TODO find good z value and sleep value
      * TODO test on robot
      */
     ros::Duration(7).sleep();
@@ -159,7 +166,8 @@ void initTurn(){
 /**
  ** The main function is responcable for running the entire GoalPlannerNode
  */
-int main(int argc, char **argv){
+int main(int argc, char **argv)
+{
     ros::init(argc, argv, "GoalPlanner");
     ros::NodeHandle nh;
     fillSPCollection(nh);
@@ -171,23 +179,31 @@ int main(int argc, char **argv){
 
     ROS_INFO("Statemachine is running!");
     ros::spinOnce();
+    printf("%d",searchStrategy.distance(Point(3,3), Point(2,2)));
+    /*For testing i created a publisher that publishes the posearray*/
+    ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("/thinnedVector", 5);
 
-    /**
-     * TODO implement logic of the state machine here.
-    */
-    //As long as not all points are visited execute the loop
-    while(!(points[0].visited && points[1].visited && points[2].visited && points[3].visited && points[4].visited)){
-        Point *p_point;
-        for(int i = 0; i <= 4; ++i){
-            p_point = &points[i];
-            if(!p_point->visited){
-                ROS_INFO("Driving to Point: %d", i);
-                break;
-            }
-        }
-        aC.driveTo(p_point);
-        aC.fullTurn();
+    geometry_msgs::PoseArray points;
+    points.header.frame_id = "map";
+    points.header.stamp = ros::Time::now();
+
+    for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
+    {
+        geometry_msgs::Pose p1;
+
+        p1.position.x = searchStrategy.getThinnedCoordinates()->at(i).x;
+        p1.position.y = searchStrategy.getThinnedCoordinates()->at(i).y;
+        p1.position.z = 0;
+
+        p1.orientation.x = 0;
+        p1.orientation.y = 0;
+        p1.orientation.z = 0;
+
+        points.poses.push_back(p1);
+    }
+    while (ros::ok())
+    {
+        pub.publish(points);
         ros::spinOnce();
     }
-    
 }
