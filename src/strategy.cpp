@@ -15,10 +15,10 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/ximgproc.hpp>
 #include <opencv2/core/mat.hpp>
-#include <hwp_goalplanner/subscriber_publisher_collection.h>
-#include <hwp_goalplanner/mb_client.h>
-#include <hwp_goalplanner/point.h>
-#include <hwp_goalplanner/seach_strategy.h>
+#include <strategy/subscriber_publisher_collection.h>
+#include <strategy/mb_client.h>
+#include <strategy/point.h>
+#include <strategy/seach_strategy.h>
 #include <sensor_msgs/PointCloud.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;

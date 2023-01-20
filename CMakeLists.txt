@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(hwp_goalplanner)
+project(strategy)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -109,7 +109,7 @@ find_package(OpenCV 4.2 REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES hwp_goalplanner
+  LIBRARIES strategy
 #  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp tf2_ros visualization_msgs
 #  DEPENDS system_lib
 )
@@ -139,7 +139,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(goal_planner_node src/goal_planner.cpp)
+add_executable(strategy_node src/strategy.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,11 +149,11 @@ add_executable(goal_planner_node src/goal_planner.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(goal_planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(strategy_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(
-  goal_planner_node ${catkin_LIBRARIES} ${OpenCV_LIBS}
+  strategy_node ${catkin_LIBRARIES} ${OpenCV_LIBS}
 )
 
 #############

@@ -5,8 +5,8 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/mat.hpp>
-#include <hwp_goalplanner/mb_client.h>
-#include <hwp_goalplanner/point.h>
+#include <strategy/mb_client.h>
+#include <strategy/point.h>
 #include <cmath>
 
 #ifndef SEARCH_STRATEGY_H

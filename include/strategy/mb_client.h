@@ -9,7 +9,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <geometry_msgs/Twist.h>
 #include <opencv2/ximgproc.hpp>
-#include <hwp_goalplanner/point.h>
+#include <strategy/point.h>
 
 #ifndef MB_CLIENT_H
 #define MB_CLIENT_H
