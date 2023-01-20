@@ -84,9 +84,9 @@ void getMap(nav_msgs::OccupancyGrid msg)
 
     cv::ximgproc::thinning(input, thinned, cv::ximgproc::THINNING_ZHANGSUEN);
 
-    cv::imshow("INPUT", input);
-    cv::imshow("OUTPUT", thinned);
-    cv::waitKey(0);
+//    cv::imshow("INPUT", input);
+//    cv::imshow("OUTPUT", thinned);
+//    cv::waitKey(0);
 
 
     /* creates the vector that holds the points that should be visited by the robot */
@@ -182,12 +182,12 @@ int main(int argc, char **argv)
     MBClient aC;
     aC.serverConnection();
     ROS_INFO("Localising");
+    initTurn();
     ros::spinOnce();
     ROS_INFO("Statemachine is running!");
     /**
      * TODO how does the initial localisation spin effect the marker-array (do i double a marker)
     */
-    initTurn();
 
     /**
      * TODO remove the posearray-topic
