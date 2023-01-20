@@ -31,7 +31,7 @@ private:
     {
         /**
          * TODO check if it works properly
-        */
+         */
         /*Concern may not be valid because the distance isnt great !?*/
         return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
     }
@@ -43,7 +43,7 @@ public:
     /**
      * * Getter Method
      * @return A pointer to the thinnedCoordinates-vector
-    */
+     */
     std::vector<Point> *getThinnedCoordinates()
     {
         return &thinnedCoordinates;
@@ -60,7 +60,7 @@ public:
         {
             /**
              * TODO figure out what to do here
-            */
+             */
             return Point(-1, -1);
         };
 
@@ -90,6 +90,8 @@ public:
             if (distance(thinnedCoordinates.at(i), p) < RADIUS)
             {
                 thinnedCoordinates.erase(thinnedCoordinates.begin() + i);
+                i--;
+
             }
         };
     }
