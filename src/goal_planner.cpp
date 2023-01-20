@@ -24,11 +24,13 @@
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 /**
- * TODO read directly from yaml
+ * TODO read directly from yaml ?
  */
 /* const used for the conversion of pixels to coordinates */
 const double map_resolution = 0.025;
 const double offset[] = {-2.5, -2.5, 0};
+const double occupied_thresh = 0.65;
+const double free_thresh = 0.196;
 
 /*This vector will hold all the fires-marker found by the robot*/
 std::vector<visualization_msgs::Marker> red_triangle_markers;
@@ -58,24 +60,34 @@ void getMap(nav_msgs::OccupancyGrid msg)
 
     for (int i = 0; i < msg.info.height; i++)
     {
+        /**
+         * TODO handle values between the threshholds 
+        */
         for (int j = 0; j < msg.info.width; j++)
         {
             if (msg.data[i * msg.info.width + j] == -1)
             {
                 input.at<uchar>(j, i) = 0;
             }
-            else if (msg.data[i * msg.info.width + j] == 0)
+            else if (msg.data[i * msg.info.width + j] <= free_thresh)
             {
                 input.at<uchar>(j, i) = 255;
             }
-            else if (msg.data[i * msg.info.width] > 0)
+            else if (msg.data[i * msg.info.width] >= occupied_thresh)
             {
-                input.at<uchar>(j, i) = 255;
+                input.at<uchar>(j, i) = 0;//vorher 255s
             }
         }
     }
 
+    std::cout << "input" << std::endl << " " << input << std::endl << std::endl;
+
     cv::ximgproc::thinning(input, thinned, cv::ximgproc::THINNING_ZHANGSUEN);
+
+    cv::imshow("INPUT", input);
+    cv::imshow("OUTPUT", thinned);
+    cv::waitKey(0);
+
 
     /* creates the vector that holds the points that should be visited by the robot */
     for (int i = 0; i < msg.info.height; i++)
