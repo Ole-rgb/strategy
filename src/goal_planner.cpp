@@ -19,14 +19,13 @@
 #include <hwp_goalplanner/mb_client.h>
 #include <hwp_goalplanner/point.h>
 #include <hwp_goalplanner/seach_strategy.h>
-
-#include <iostream>
+#include <sensor_msgs/PointCloud.h>
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 /**
  * TODO read directly from yaml
-*/
+ */
 /* const used for the conversion of pixels to coordinates */
 const double map_resolution = 0.025;
 const double offset[] = {-2.5, -2.5, 0};
@@ -170,56 +169,50 @@ int main(int argc, char **argv)
     fillSPCollection(nh);
     MBClient aC;
     aC.serverConnection();
-    ROS_INFO("Finished initial setup");
     ROS_INFO("Localising");
-    initTurn();
-    ROS_INFO("Statemachine is running!");
     ros::spinOnce();
+    ROS_INFO("Statemachine is running!");
+    /**
+     * TODO how does the initial localisation spin effect the marker-array (do i double a marker)
+    */
+    initTurn();
 
     /**
      * TODO remove the posearray-topic
-    */
-    /*For testing i created a publisher that publishes the posearray*/
-    ros::Publisher pub = nh.advertise<geometry_msgs::PoseArray>("/thinnedVector", 5);
+     */
+    /*For visualisation of all the points that have to be visited i created a publisher that publishes the pointcloud*/
+    ros::Publisher pub = nh.advertise<sensor_msgs::PointCloud>("/thinnedVector", 5);
 
-    geometry_msgs::PoseArray points;
+    sensor_msgs::PointCloud points;
     points.header.frame_id = "map";
     points.header.stamp = ros::Time::now();
-    geometry_msgs::Pose p1;
+    geometry_msgs::Point32 p1;
 
-    
     while (!searchStrategy.getThinnedCoordinates()->empty())
     {
         /*Configure the TOPIC*/
         for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
         {
-            p1.position.x = searchStrategy.getThinnedCoordinates()->at(i).x;
-            p1.position.y = searchStrategy.getThinnedCoordinates()->at(i).y;
-            p1.position.z = 0;
+            p1.x = searchStrategy.getThinnedCoordinates()->at(i).x;
+            p1.y = searchStrategy.getThinnedCoordinates()->at(i).y;
+            p1.z = 0;
 
-            p1.orientation.x = 0;
-            p1.orientation.y = 0;
-            p1.orientation.z = 0;
-
-            points.poses.push_back(p1);
+            points.points.push_back(p1);
         }
         pub.publish(points);
         ros::spinOnce();
-        points.poses.clear();
-        //ROS_INFO("Length VECTOR: %ld", searchStrategy.getThinnedCoordinates()->size());
+        points.points.clear();
+
         Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
-        if(aC.driveTo(closestPoint)){
-            /**
-             * TODO roboter position or closest Point?
-            */
-            //Point robPos = Point(aC.getPosition().transform.translation.x,aC.getPosition().transform.translation.y);
-            //searchStrategy.visited(robPos);
+        if (aC.driveTo(closestPoint))
+        {
+            aC.fullTurn();
             searchStrategy.visited(closestPoint);
+
         }
-    
     }
 
     /**
      * TODO handle Vision
-    */
+     */
 }
