@@ -91,6 +91,10 @@ struct MBClient
                 ROS_WARN("Goal not achieved, something went wrong");
             }
         }
+        /**
+         * TODO remove the sleep()
+        */
+        ros::Duration(2).sleep();
     }
 
     /**
