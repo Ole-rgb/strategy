@@ -26,7 +26,9 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 /**
  * TODO read directly from yaml ?
  */
-/* const used for the conversion of pixels to coordinates */
+/** const used for the conversion of pixels to coordinates 
+ * ! Adjust to used MAP
+*/
 const double map_resolution = 0.025;
 const double offset[] = {-2.0, -12.4, 0};
 const double occupied_thresh = 0.65;
@@ -161,8 +163,7 @@ void initTurn()
     SP_Collection.cmd_velPub.publish(twist);
 
     /**
-     * TODO find good z value and sleep value
-     * TODO test on robot
+     * ! The robot doesnt sleep for 7 seconds at all
      */
     ros::Duration(7).sleep();
 
@@ -185,13 +186,7 @@ int main(int argc, char **argv)
     initTurn();
     ros::spinOnce();
     ROS_INFO("Statemachine is running!");
-    /**
-     * TODO how does the initial localisation spin effect the marker-array (do i double a marker)
-    */
 
-    /**
-     * TODO remove the posearray-topic
-     */
     /*For visualisation of all the points that have to be visited i created a publisher that publishes the pointcloud*/
     ros::Publisher pub = nh.advertise<sensor_msgs::PointCloud>("/thinnedVector", 5);
 
@@ -216,10 +211,7 @@ int main(int argc, char **argv)
         points.points.clear();
 
         Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
-        /**
-         * TODO for testing
-        */
-        ROS_ERROR("Drive to Coordinates: (%f,%f)", closestPoint.x, closestPoint.y); 
+
         if (aC.driveTo(closestPoint))
         {
             aC.fullTurn();
