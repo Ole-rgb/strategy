@@ -28,7 +28,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
  */
 /* const used for the conversion of pixels to coordinates */
 const double map_resolution = 0.025;
-const double offset[] = {-2.5, -2.5, 0};
+const double offset[] = {-2.0, -12.4, 0};
 const double occupied_thresh = 0.65;
 const double free_thresh = 0.196;
 
@@ -216,6 +216,10 @@ int main(int argc, char **argv)
         points.points.clear();
 
         Point closestPoint = searchStrategy.closestPoint(Point(aC.getPosition().transform.translation.x, aC.getPosition().transform.translation.y));
+        /**
+         * TODO for testing
+        */
+        ROS_ERROR("Drive to Coordinates: (%f,%f)", closestPoint.x, closestPoint.y); 
         if (aC.driveTo(closestPoint))
         {
             aC.fullTurn();
