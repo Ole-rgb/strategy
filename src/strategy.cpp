@@ -80,7 +80,7 @@ void getMap(nav_msgs::OccupancyGrid msg)
         }
     }
 
-    std::cout << "input" << std::endl << " " << input << std::endl << std::endl;
+    // std::cout << "input" << std::endl << " " << input << std::endl << std::endl;
 
     cv::ximgproc::thinning(input, thinned, cv::ximgproc::THINNING_ZHANGSUEN);
 
