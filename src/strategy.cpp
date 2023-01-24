@@ -160,7 +160,7 @@ void initTurn()
     /**
      * what a solution :d
     */
-    for(int i = 0; i < 14; i++){
+    for(int i = 0; i < 11; i++){
         SP_Collection.cmd_velPub.publish(twist);
         ros::Duration(0.5).sleep();
     }
