@@ -193,7 +193,7 @@ int main(int argc, char **argv)
     points.header.stamp = ros::Time::now();
     geometry_msgs::Point32 p1;
 
-    while (!searchStrategy.getThinnedCoordinates()->empty())
+    while (!searchStrategy.getThinnedCoordinates()->empty() || blue_squere_markers.size() == 3)
     {
         /*Configure the TOPIC*/
         for (int i = 0; i < searchStrategy.getThinnedCoordinates()->size(); i++)
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 
         }
     }
-
+    ROS_INFO("Found all humans, mission accomplished");
     /**
      * TODO handle Vision
      */
