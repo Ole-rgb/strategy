@@ -46,7 +46,7 @@ SubscriberPublisherCollection SP_Collection;
 cv::Mat thinned = cv::Mat();
 
 /* The seachStrategy handles all interation with the thinnedCoordiantes  */
-SearchStrategy searchStrategy(0.35);
+SearchStrategy searchStrategy(0.45);
 
 /**
  * * Gets the Map
@@ -62,9 +62,6 @@ void getMap(nav_msgs::OccupancyGrid msg)
 
     for (int i = 0; i < msg.info.height; i++)
     {
-        /**
-         * TODO handle values between the threshholds 
-        */
         for (int j = 0; j < msg.info.width; j++)
         {
             if (msg.data[i * msg.info.width + j] == -1)
@@ -77,7 +74,7 @@ void getMap(nav_msgs::OccupancyGrid msg)
             }
             else if (msg.data[i * msg.info.width] >= occupied_thresh)
             {
-                input.at<uchar>(j, i) = 0;//vorher 255s
+                input.at<uchar>(j, i) = 0;
             }
         }
     }
@@ -160,12 +157,13 @@ void initTurn()
     twist.angular.y = 0;
     twist.angular.z = 1;
 
-    SP_Collection.cmd_velPub.publish(twist);
-
     /**
-     * ! The robot doesnt sleep for 7 seconds at all
-     */
-    ros::Duration(7).sleep();
+     * what a solution :d
+    */
+    for(int i = 0; i < 14; i++){
+        SP_Collection.cmd_velPub.publish(twist);
+        ros::Duration(0.5).sleep();
+    }
 
     /*Set the rotation around the z axis th 0 after the turn*/
     twist.angular.z = 0;
